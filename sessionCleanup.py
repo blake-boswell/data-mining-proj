@@ -12,12 +12,12 @@ def oneHotEncode(df, column):
     return df
 
 # Read in the sessions.csv file
-df = pd.read_csv('./airbnb-recruiting-new-user-bookings/sessions.csv', header=0)
+dfSession = pd.read_csv('./airbnb-recruiting-new-user-bookings/sessions.csv', header=0)
 
 # Grab all instances of a user on a device, and add them up into one duration
-print(df.columns)
+print(dfSession.columns)
 # :, [] appears to give for columns
-userDevices = df.loc[:, ['user_id', 'device_type', 'secs_elapsed']]
+userDevices = dfSession.loc[:, ['user_id', 'device_type', 'secs_elapsed']]
 print(userDevices)
 
 # Merge same device into one record by summing secs elapsed
@@ -70,7 +70,7 @@ def countsTransform(df, column):
 # Get the counts of each action
 # 1. Loop over each action col
 actionColumns = ['action', 'action_type', 'action_detail']
-actionDf = df.loc[:, ['user_id', 'action', 'action_type', 'action_detail']]
+actionDf = dfSession.loc[:, ['user_id', 'action', 'action_type', 'action_detail']]
 actionDf = actionDf.fillna('NA')
 actionDf['user_id'].drop_duplicates()
 transformedActionDf = actionDf

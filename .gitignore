@@ -1,4 +1,6 @@
 airbnb-recruiting-new-user-bookings/*
 plan.txt
+output/*
 
 !airbnb-recruiting-new-user-bookings/.gitkeep
+!output/.gitkeep
