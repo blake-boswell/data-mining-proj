@@ -18,9 +18,9 @@ print('Starting to clean test and train data')
 dfTest = pd.read_csv('./airbnb-recruiting-new-user-bookings/test_users.csv', header=0)
 dfTrain = pd.read_csv('./airbnb-recruiting-new-user-bookings/train_users_2.csv', header=0)
 
-# Fix ages > 100 and less than 15 (not realistic)
-dfTest['age'] = np.where(np.logical_or((dfTest['age'].values < 12), (dfTest['age'].values > 100)), np.NaN, dfTest['age'].values)
-dfTrain['age'] = np.where(np.logical_or((dfTrain['age'].values < 12), (dfTrain['age'].values > 100)), np.NaN, dfTrain['age'].values)
+# Fix ages > 110 and less than 15 (not realistic)
+dfTest['age'] = np.where(np.logical_or((dfTest['age'].values <= 15), (dfTest['age'].values >= 110)), np.NaN, dfTest['age'].values)
+dfTrain['age'] = np.where(np.logical_or((dfTrain['age'].values <= 15), (dfTrain['age'].values >= 110)), np.NaN, dfTrain['age'].values)
 
 # Fix timestamps (set to datetime values for date functions) while keeping the data
 dfTest['date_account_created'] = pd.to_datetime(dfTest['date_account_created'], format='%Y-%m-%d')
@@ -78,8 +78,8 @@ for column in columns:
 print('Writing modified train and test data to files...')
 dfTrain.set_index('id', inplace=True)
 dfTest.set_index('id', inplace=True)
-dfTrain.to_csv('./output/modified_train_users.csv', index_label='id')
-dfTest.to_csv('./output/modified_test_users.csv', index_label='id')
+dfTrain.to_csv('./output/DEBUGGING_modified_train_users.csv', index_label='id')
+dfTest.to_csv('./output/DEBUGGING_modified_test_users.csv', index_label='id')
 
 # ~~~~~~~~~~~~~~ Sessions clean up ~~~~~~~~~~~~~~~
 
@@ -107,7 +107,7 @@ secondaryDevices= pd.DataFrame(otherDevices.loc[index, ['user_id', 'device_type'
 secondaryDevices.rename(columns = { 'device_type': 'secondary_device', 'secs_elapsed': 'secondary_secs_elapsed' }, inplace = True)
 secondaryDevices.set_index('user_id', inplace=True)
 
-deviceDf = pd.concat([primaryDevices, secondaryDevices], join='outer', axis=1)
+deviceDf = pd.concat([primaryDevices, secondaryDevices], join='outer', axis=1, sort=True)
 
 # primaryDevices = oneHotEncode(primaryDevices, 'primary_device')
 # primaryDevices.drop(columns = 'primary_device', inplace = True)
@@ -152,31 +152,25 @@ concatenate = False
 for actionCol in actionColumns:
     transformedDf = countsTransform(df=actionDf, column=actionCol)
     if concatenate:
-        transformedActionDf = pd.concat([transformedActionDf, transformedDf], join='inner', axis=1)
+        transformedActionDf = pd.concat([transformedActionDf, transformedDf], join='inner', axis=1, sort=True)
     else:
         transformedActionDf = transformedDf
         concatenate = True
     print(str(actionCol) + ' done.')
 
-# 2. Get the counts of that action for each user
-# actions = df.loc[:, ['user_id', 'action']]
-# print('----------------------')
-# # print(actions.loc[actions['action'] == '10'])
-# print('----------------------')
-# actionCounts = actions.fillna('NA')
-# # print(actions)
-# # print()
-
 # Combine the sets
-combinedSessionDf = pd.concat([deviceDf, transformedActionDf], join='outer', axis=1)
+combinedSessionDf = pd.concat([deviceDf, transformedActionDf], join='outer', axis=1, sort=True)
 combinedSessionDf = combinedSessionDf.fillna(0)
 
 # combinedSessionDf.to_csv('./output/modified_session.csv')
 
 # Merge sessions and train files by the user id
-dfSessionTrain = pd.concat([dfTrain, combinedSessionDf], join='outer', axis=1)
+dfSessionTrain = pd.concat([dfTrain, combinedSessionDf], join='inner', axis=1, sort=True)
 print('Writing the session and train joined data file.')
 dfSessionTrain.to_csv('./output/modified_session_train.csv', index_label='id')
-print('Complete. Use ./output/modified_session_train.csv for the training data, and ./output/modified_test_users.csv as the test data')
+dfSessionTest = pd.concat([dfTest, combinedSessionDf], join='inner', axis=1, sort=True)
+print('Writing the session and test joined data file.')
+dfSessionTest.to_csv('./output/modified_session_test.csv', index_label='id')
+print('Complete. Use ./output/modified_session_train.csv for the training data, and ./output/modified_session_test.csv as the test data')
 
 
