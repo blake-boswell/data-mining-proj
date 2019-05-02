@@ -105,12 +105,14 @@ userDevices = userDevices.groupby(['user_id','device_type'], sort=False, as_inde
 index = userDevices.groupby(['user_id'], sort=False)['secs_elapsed'].transform(max) == userDevices['secs_elapsed']
 primaryDevices = pd.DataFrame(userDevices.loc[index, ['user_id', 'device_type', 'secs_elapsed']])
 primaryDevices.rename(columns = { 'device_type': 'primary_device', 'secs_elapsed': 'primary_secs_elapsed' }, inplace = True)
+primaryDevices = oneHotEncode(df=primaryDevices, column='primary_device')
 primaryDevices.set_index('user_id', inplace=True)
 
 otherDevices = userDevices.drop(userDevices.index[index])
 index = otherDevices.groupby(['user_id'], sort=False)['secs_elapsed'].transform(max) == otherDevices['secs_elapsed']
 secondaryDevices= pd.DataFrame(otherDevices.loc[index, ['user_id', 'device_type', 'secs_elapsed']])
 secondaryDevices.rename(columns = { 'device_type': 'secondary_device', 'secs_elapsed': 'secondary_secs_elapsed' }, inplace = True)
+secondaryDevices = oneHotEncode(df=secondaryDevices, column='secondary_device')
 secondaryDevices.set_index('user_id', inplace=True)
 
 deviceDf = pd.concat([primaryDevices, secondaryDevices], join='outer', axis=1, sort=True)
