@@ -65,6 +65,12 @@ dfTrain['month_account_created'] = dfTrain['date_account_created'].dt.month
 dfTrain['quarter_account_created'] = dfTrain['date_account_created'].dt.quarter
 dfTrain['year_account_created'] = dfTrain['date_account_created'].dt.year
 
+dfTest.drop('date_account_created', axis='columns', inplace=True)
+dfTest.drop('timestamp_first_active', axis='columns', inplace=True)
+
+dfTrain.drop('date_account_created', axis='columns', inplace=True)
+dfTrain.drop('timestamp_first_active', axis='columns', inplace=True)
+
 # One-hot-encode option
 columns = ['gender', 'signup_method', 'language', 'affiliate_channel', 'affiliate_provider', 'first_affiliate_tracked', 'signup_app', 'first_device_type', 'first_browser']
 for column in columns:
