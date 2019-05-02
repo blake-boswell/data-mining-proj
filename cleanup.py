@@ -18,74 +18,81 @@ print('Starting to clean test and train data')
 dfTest = pd.read_csv('./airbnb-recruiting-new-user-bookings/test_users.csv', header=0)
 dfTrain = pd.read_csv('./airbnb-recruiting-new-user-bookings/train_users_2.csv', header=0)
 
+# testIds = dfTest['id'].values
+# trainIds = dfTrain['id'].values
+
+dfCombo = pd.concat([dfTest, dfTrain], axis=0, ignore_index=True)
+
 # Fix ages > 110 and less than 15 (not realistic)
-dfTest['age'] = np.where(np.logical_or((dfTest['age'].values <= 15), (dfTest['age'].values >= 110)), np.NaN, dfTest['age'].values)
-dfTrain['age'] = np.where(np.logical_or((dfTrain['age'].values <= 15), (dfTrain['age'].values >= 110)), np.NaN, dfTrain['age'].values)
+dfCombo['age'] = np.where(np.logical_or((dfCombo['age'].values <= 15), (dfCombo['age'].values >= 110)), np.NaN, dfCombo['age'].values)
+# dfTrain['age'] = np.where(np.logical_or((dfTrain['age'].values <= 15), (dfTrain['age'].values >= 110)), np.NaN, dfTrain['age'].values)
 
 # Fix timestamps (set to datetime values for date functions) while keeping the data
-dfTest['date_account_created'] = pd.to_datetime(dfTest['date_account_created'], format='%Y-%m-%d')
-dfTest['timestamp_first_active'] = pd.to_datetime(dfTest['timestamp_first_active'], format='%Y%m%d%H%M%S')
+dfCombo['date_account_created'] = pd.to_datetime(dfCombo['date_account_created'], format='%Y-%m-%d')
+dfCombo['timestamp_first_active'] = pd.to_datetime(dfCombo['timestamp_first_active'], format='%Y%m%d%H%M%S')
 
-dfTrain['date_account_created'] = pd.to_datetime(dfTrain['date_account_created'], format='%Y-%m-%d')
-dfTrain['timestamp_first_active'] = pd.to_datetime(dfTrain['timestamp_first_active'], format='%Y%m%d%H%M%S')
+# dfTrain['date_account_created'] = pd.to_datetime(dfTrain['date_account_created'], format='%Y-%m-%d')
+# dfTrain['timestamp_first_active'] = pd.to_datetime(dfTrain['timestamp_first_active'], format='%Y%m%d%H%M%S')
 
 # Remove date_first_booking field. It's unused in the test_users, so it can't give any insight
-dfTest.drop('date_first_booking', axis='columns', inplace=True)
-dfTrain.drop('date_first_booking', axis='columns', inplace=True)
+dfCombo.drop('date_first_booking', axis='columns', inplace=True)
+# dfTrain.drop('date_first_booking', axis='columns', inplace=True)
 
 # Set all Na values to -1 (age, date_account_created, first_affiliate_tracked)
-dfTest['age'].fillna(-1, inplace=True)
-dfTrain['age'].fillna(-1, inplace=True)
+dfCombo['age'].fillna(-1, inplace=True)
+# dfTrain['age'].fillna(-1, inplace=True)
 
 # Fill in empty date_account_created values by using the timestamp
-dfTest['date_account_created'].fillna(dfTest['timestamp_first_active'], inplace=True)
-dfTest['first_affiliate_tracked'].fillna(-1, inplace=True)
+dfCombo['date_account_created'].fillna(dfCombo['timestamp_first_active'], inplace=True)
+dfCombo['first_affiliate_tracked'].fillna(-1, inplace=True)
 
-dfTrain['date_account_created'].fillna(dfTrain['timestamp_first_active'], inplace=True)
-dfTrain['first_affiliate_tracked'].fillna(-1, inplace=True)
+# dfTrain['date_account_created'].fillna(dfTrain['timestamp_first_active'], inplace=True)
+# dfTrain['first_affiliate_tracked'].fillna(-1, inplace=True)
 
 # Add new data from the date columns (date_account_created, timestamp_first_active)
-dfTest['hour_first_active'] = dfTest['timestamp_first_active'].dt.hour
-dfTest['day_first_active'] = dfTest['timestamp_first_active'].dt.weekday
-dfTest['month_first_active'] = dfTest['timestamp_first_active'].dt.month
-dfTest['quarter_first_active'] = dfTest['timestamp_first_active'].dt.quarter
-dfTest['year_first_active'] = dfTest['timestamp_first_active'].dt.year
-dfTest['day_account_created'] = dfTest['date_account_created'].dt.weekday
-dfTest['month_account_created'] = dfTest['date_account_created'].dt.month
-dfTest['quarter_account_created'] = dfTest['date_account_created'].dt.quarter
-dfTest['year_account_created'] = dfTest['date_account_created'].dt.year
+dfCombo['hour_first_active'] = dfCombo['timestamp_first_active'].dt.hour
+dfCombo['day_first_active'] = dfCombo['timestamp_first_active'].dt.weekday
+dfCombo['month_first_active'] = dfCombo['timestamp_first_active'].dt.month
+dfCombo['quarter_first_active'] = dfCombo['timestamp_first_active'].dt.quarter
+dfCombo['year_first_active'] = dfCombo['timestamp_first_active'].dt.year
+dfCombo['day_account_created'] = dfCombo['date_account_created'].dt.weekday
+dfCombo['month_account_created'] = dfCombo['date_account_created'].dt.month
+dfCombo['quarter_account_created'] = dfCombo['date_account_created'].dt.quarter
+dfCombo['year_account_created'] = dfCombo['date_account_created'].dt.year
 
-dfTrain['hour_first_active'] = dfTrain['timestamp_first_active'].dt.hour
-dfTrain['day_first_active'] = dfTrain['timestamp_first_active'].dt.weekday
-dfTrain['month_first_active'] = dfTrain['timestamp_first_active'].dt.month
-dfTrain['quarter_first_active'] = dfTrain['timestamp_first_active'].dt.quarter
-dfTrain['year_first_active'] = dfTrain['timestamp_first_active'].dt.year
-dfTrain['day_account_created'] = dfTrain['date_account_created'].dt.weekday
-dfTrain['month_account_created'] = dfTrain['date_account_created'].dt.month
-dfTrain['quarter_account_created'] = dfTrain['date_account_created'].dt.quarter
-dfTrain['year_account_created'] = dfTrain['date_account_created'].dt.year
+# dfTrain['hour_first_active'] = dfTrain['timestamp_first_active'].dt.hour
+# dfTrain['day_first_active'] = dfTrain['timestamp_first_active'].dt.weekday
+# dfTrain['month_first_active'] = dfTrain['timestamp_first_active'].dt.month
+# dfTrain['quarter_first_active'] = dfTrain['timestamp_first_active'].dt.quarter
+# dfTrain['year_first_active'] = dfTrain['timestamp_first_active'].dt.year
+# dfTrain['day_account_created'] = dfTrain['date_account_created'].dt.weekday
+# dfTrain['month_account_created'] = dfTrain['date_account_created'].dt.month
+# dfTrain['quarter_account_created'] = dfTrain['date_account_created'].dt.quarter
+# dfTrain['year_account_created'] = dfTrain['date_account_created'].dt.year
 
-dfTest.drop('date_account_created', axis='columns', inplace=True)
-dfTest.drop('timestamp_first_active', axis='columns', inplace=True)
+dfCombo.drop('date_account_created', axis='columns', inplace=True)
+dfCombo.drop('timestamp_first_active', axis='columns', inplace=True)
+dfCombo.drop('country_destination', axis='columns', inplace=True)
 
-dfTrain.drop('date_account_created', axis='columns', inplace=True)
-dfTrain.drop('timestamp_first_active', axis='columns', inplace=True)
+# dfTrain.drop('date_account_created', axis='columns', inplace=True)
+# dfTrain.drop('timestamp_first_active', axis='columns', inplace=True)
 
 # One-hot-encode option
 columns = ['gender', 'signup_method', 'language', 'affiliate_channel', 'affiliate_provider', 'first_affiliate_tracked', 'signup_app', 'first_device_type', 'first_browser']
 for column in columns:
-    dfTest = oneHotEncode(dfTest, column)
-    dfTest.drop(column, axis='columns', inplace=True)
+    dfCombo = oneHotEncode(dfCombo, column)
+    dfCombo.drop(column, axis='columns', inplace=True)
 
-    dfTrain = oneHotEncode(dfTrain, column)
-    dfTrain.drop(column, axis='columns', inplace=True)
+    # dfTrain = oneHotEncode(dfTrain, column)
+    # dfTrain.drop(column, axis='columns', inplace=True)
 
 # Write to modified csv file
 print('Writing modified train and test data to files...')
-dfTrain.set_index('id', inplace=True)
-dfTest.set_index('id', inplace=True)
-dfTrain.to_csv('./output/DEBUGGING_modified_train_users.csv', index_label='id')
-dfTest.to_csv('./output/DEBUGGING_modified_test_users.csv', index_label='id')
+dfCombo.set_index('id', inplace=True)
+# dfTest.set_index('id', inplace=True)
+# dfTrain.to_csv('./output/DEBUGGING_modified_train_users.csv', index_label='id')
+# dfTest.to_csv('./output/DEBUGGING_modified_test_users.csv', index_label='id')
+dfCombo.to_csv('./output/DEBUGGING_modified_combo_users.csv', index_label='id')
 
 # ~~~~~~~~~~~~~~ Sessions clean up ~~~~~~~~~~~~~~~
 
@@ -107,6 +114,7 @@ primaryDevices = pd.DataFrame(userDevices.loc[index, ['user_id', 'device_type', 
 primaryDevices.rename(columns = { 'device_type': 'primary_device', 'secs_elapsed': 'primary_secs_elapsed' }, inplace = True)
 primaryDevices = oneHotEncode(df=primaryDevices, column='primary_device')
 primaryDevices.set_index('user_id', inplace=True)
+primaryDevices.drop('primary_device', axis='columns', inplace=True)
 
 otherDevices = userDevices.drop(userDevices.index[index])
 index = otherDevices.groupby(['user_id'], sort=False)['secs_elapsed'].transform(max) == otherDevices['secs_elapsed']
@@ -114,6 +122,7 @@ secondaryDevices= pd.DataFrame(otherDevices.loc[index, ['user_id', 'device_type'
 secondaryDevices.rename(columns = { 'device_type': 'secondary_device', 'secs_elapsed': 'secondary_secs_elapsed' }, inplace = True)
 secondaryDevices = oneHotEncode(df=secondaryDevices, column='secondary_device')
 secondaryDevices.set_index('user_id', inplace=True)
+secondaryDevices.drop('secondary_device', axis='columns', inplace=True)
 
 deviceDf = pd.concat([primaryDevices, secondaryDevices], join='outer', axis=1, sort=True)
 
@@ -173,12 +182,27 @@ combinedSessionDf = combinedSessionDf.fillna(0)
 # combinedSessionDf.to_csv('./output/modified_session.csv')
 
 # Merge sessions and train files by the user id
-dfSessionTrain = pd.concat([dfTrain, combinedSessionDf], join='inner', axis=1, sort=True)
+dfSessionCombo = pd.concat([dfCombo, combinedSessionDf], join='outer', axis=1, sort=True)
 print('Writing the session and train joined data file.')
-dfSessionTrain.to_csv('./output/modified_session_train.csv', index_label='id')
-dfSessionTest = pd.concat([dfTest, combinedSessionDf], join='inner', axis=1, sort=True)
-print('Writing the session and test joined data file.')
-dfSessionTest.to_csv('./output/modified_session_test.csv', index_label='id')
-print('Complete. Use ./output/modified_session_train.csv for the training data, and ./output/modified_session_test.csv as the test data')
+dfSessionCombo.to_csv('./output/modified_session_combo.csv', index_label='id')
+print('Complete. Use ./output/modified_session_combo.csv split into a test and training set')
+# dfSessionTest = pd.concat([dfTest, combinedSessionDf], join='inner', axis=1, sort=True)
+# print('Writing the session and test joined data file.')
+# dfSessionTest.to_csv('./output/modified_session_test.csv', index_label='id')
+# print('Complete. Use ./output/modified_session_train.csv for the training data, and ./output/modified_session_test.csv as the test data')
+# Get Train data from the combo
+dfTrain.set_index('id', inplace=True)
+dfTrain = pd.concat([dfTrain['country_destination'], dfCombo], join='inner', axis=1)
+
+# Get Test data from the combo
+dfTest.set_index('id', inplace=True)
+# dfTest = pd.concat([dfTest['country_destination'], dfCombo], join='inner', axis=1)
+dfTest = pd.merge(dfTest.loc[:, ['date_first_booking']], dfCombo, how='left', left_index=True, right_index=True, sort=False)
+dfTest.drop('date_first_booking', axis=1, inplace=True)
+dfTest['country_destination'] = ''
+
+print('Writing the Test and Train data files.')
+dfTrain.to_csv('./output/modified_train.csv', index_label='id')
+dfTest.to_csv('./output/modified_test.csv', index_label='id')
 
 
