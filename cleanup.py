@@ -182,14 +182,16 @@ combinedSessionDf = combinedSessionDf.fillna(0)
 # combinedSessionDf.to_csv('./output/modified_session.csv')
 
 # Merge sessions and train files by the user id
-dfSessionCombo = pd.concat([dfCombo, combinedSessionDf], join='outer', axis=1, sort=True)
-print('Writing the session and train joined data file.')
-dfSessionCombo.to_csv('./output/modified_session_combo.csv', index_label='id')
-print('Complete. Use ./output/modified_session_combo.csv split into a test and training set')
+# dfCombo.set_index('id', inplace=True)
+dfCombo = pd.concat([dfCombo, combinedSessionDf], join='inner', axis=1, sort=True)
+print('Writing the session and data joined file.')
+dfCombo.to_csv('./output/modified_combo.csv', index_label='id')
+print('Complete. Use ./output/modified_combo.csv split into a test and training set')
 # dfSessionTest = pd.concat([dfTest, combinedSessionDf], join='inner', axis=1, sort=True)
 # print('Writing the session and test joined data file.')
 # dfSessionTest.to_csv('./output/modified_session_test.csv', index_label='id')
 # print('Complete. Use ./output/modified_session_train.csv for the training data, and ./output/modified_session_test.csv as the test data')
+
 # Get Train data from the combo
 dfTrain.set_index('id', inplace=True)
 dfTrain = pd.concat([dfTrain['country_destination'], dfCombo], join='inner', axis=1)
@@ -199,6 +201,7 @@ dfTest.set_index('id', inplace=True)
 # dfTest = pd.concat([dfTest['country_destination'], dfCombo], join='inner', axis=1)
 dfTest = pd.merge(dfTest.loc[:, ['date_first_booking']], dfCombo, how='left', left_index=True, right_index=True, sort=False)
 dfTest.drop('date_first_booking', axis=1, inplace=True)
+dfTest = dfTest.fillna(-1)
 dfTest['country_destination'] = ''
 
 print('Writing the Test and Train data files.')
