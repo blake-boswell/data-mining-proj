@@ -3,7 +3,6 @@ plan.txt
 output/*
 *.csv
 cheats.py
-randomForest.py
 
 !airbnb-recruiting-new-user-bookings/.gitkeep
 !output/.gitkeep
